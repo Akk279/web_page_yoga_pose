@@ -1,0 +1,30 @@
+{
+  "user_N-neT8CrsCqKlxHL_Y59cg": {
+    "user_id": "user_N-neT8CrsCqKlxHL_Y59cg",
+    "total_sessions": 0,
+    "total_practice_time": 0,
+    "poses_learned": [],
+    "current_streak": 0,
+    "longest_streak": 0,
+    "last_practice_date": null,
+    "level": 1,
+    "experience_points": 0,
+    "achievements": [],
+    "created_at": "2025-10-16 13:09:03.050091",
+    "updated_at": "2025-10-16 13:09:39.131701"
+  },
+  "user_FVgCQl4FWkFJ9r5q19AhhA": {
+    "user_id": "user_FVgCQl4FWkFJ9r5q19AhhA",
+    "total_sessions": 0,
+    "total_practice_time": 0,
+    "poses_learned": [],
+    "current_streak": 0,
+    "longest_streak": 0,
+    "last_practice_date": null,
+    "level": 1,
+    "experience_points": 0,
+    "achievements": [],
+    "created_at": "2025-10-28 10:23:47.581087",
+    "updated_at": "2025-10-28 10:29:08.194073"
+  }
+}

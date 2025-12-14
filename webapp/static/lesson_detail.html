@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Lesson</title>
+  <style>
+    body { margin:0; font-family: system-ui, Arial, sans-serif; background:#f8fafc; color:#0f172a; }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#2E7D32; color:#fff; }
+    .nav a { color:#fff; text-decoration:none; margin-left:16px; }
+    .container { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+    .title { font-size:28px; font-weight:800; margin:0 0 8px; }
+    .subtitle { color:#475569; margin-bottom:16px; }
+    .images { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:12px; }
+    .images img { width:100%; height:180px; object-fit:cover; background:#000; border-radius:10px; }
+    .yt { margin-top:16px; }
+    .yt a { display:block; margin:6px 0; color:#1d4ed8; }
+    .section { margin-top:24px; }
+    .row { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+    .panel { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px; }
+    video, canvas { background:#000; width:480px; height:360px; border-radius:8px; }
+    #frame { display:none; }
+    .controls { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+    .result { font-size:16px; margin-top:8px; }
+    .api { font-size:12px; color:#475569; }
+    .status-indicator, .analysis-status { 
+      font-size:12px; 
+      padding:4px 8px; 
+      border-radius:4px; 
+      background:#f1f5f9; 
+      color:#475569;
+      font-weight:600;
+    }
+    .status-indicator.active { background:#dcfce7; color:#166534; }
+    .analysis-status.running { background:#dbeafe; color:#1e40af; }
+    .analysis-status.running::after { 
+      content: ' ●'; 
+      animation: pulse 1s infinite; 
+      color:#3b82f6;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @media (max-width: 520px) { video, canvas { width:100%; height:auto; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div><a href="/lessons">⟵ Lessons</a></div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div id="name" class="title">Loading…</div>
+    <div id="english" class="subtitle"></div>
+    <p id="desc"></p>
+    <div id="images" class="images"></div>
+    <div id="yt" class="yt"></div>
+
+    <div class="section">
+      <h2>Live Pose Analysis</h2>
+      <div id="target" class="subtitle"></div>
+      <div class="row">
+        <div class="panel">
+          <video id="video" autoplay playsinline></video>
+          <div class="controls">
+            <button id="startBtn">Start Camera</button>
+            <button id="stopBtn">Stop Camera</button>
+            <button id="expandBtn">Expand</button>
+            <button id="collapseBtn">Collapse</button>
+            <div class="status-indicator" id="cameraStatus">Camera: Off</div>
+          </div>
+        </div>
+        <div class="panel">
+          <canvas id="frame" width="224" height="224"></canvas>
+          <div class="controls">
+            <button id="predictBtn">Manual Predict</button>
+            <label class="api">API Base:
+              <input id="apiBase" value="http://127.0.0.1:8000" style="width:220px" />
+            </label>
+            <button id="voiceToggle" title="Toggle voice feedback">Voice: Off</button>
+          </div>
+          <div class="analysis-status" id="analysisStatus">Analysis: Stopped</div>
+          <div class="result" id="result">Result: —</div>
+          <div class="result" id="feedback"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/camera.js"></script>
+  <script>
+    function idFromPath(){
+      const parts = location.pathname.split('/').filter(Boolean);
+      return parts[parts.length-1];
+    }
+    async function load(){
+      const id = idFromPath();
+      const res = await fetch(`/lessons/data/${id}`);
+      const data = await res.json();
+      if(res.ok){
+        document.getElementById('name').textContent = data.name;
+        document.getElementById('english').textContent = data.english_name || '';
+        document.getElementById('desc').textContent = data.description || '';
+        document.getElementById('target').textContent = `Target pose: ${data.name}`;
+        window.__targetPose = data.name;
+        const imgs = document.getElementById('images');
+        (data.images||[]).forEach(src => {
+          const a = document.createElement('a');
+          a.href = src; a.target = '_blank'; a.rel='noopener';
+          const img = document.createElement('img'); img.src = src; img.alt = data.name;
+          a.appendChild(img); imgs.appendChild(a);
+        });
+        const yt = document.getElementById('yt');
+        (data.youtube_links||[]).forEach(link => {
+          const a = document.createElement('a');
+          a.href = link.url; a.textContent = `▶ ${link.title}`; a.target = '_blank'; a.rel='noopener';
+          yt.appendChild(a);
+        });
+      } else {
+        document.getElementById('name').textContent = 'Not found';
+      }
+    }
+    load();
+
+    // Camera + continuous prediction like the desktop app
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('frame');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const predictBtn = document.getElementById('predictBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const collapseBtn = document.getElementById('collapseBtn');
+    const resultEl = document.getElementById('result');
+    const feedbackEl = document.getElementById('feedback');
+    const apiBaseInput = document.getElementById('apiBase');
+    const voiceToggle = document.getElementById('voiceToggle');
+    const cameraStatusEl = document.getElementById('cameraStatus');
+    const analysisStatusEl = document.getElementById('analysisStatus');
+    
+    function baseName(name){
+      return (name || '').split('(')[0].trim().toLowerCase();
+    }
+
+    const controller = CameraModule.createController({
+      video, canvas, apiBaseInput, intervalMs: 1000,
+      onStatus(s){
+        if (s.camera === 'On') { cameraStatusEl.textContent = 'Camera: On'; cameraStatusEl.classList.add('active'); }
+        else if (s.camera === 'Off') { cameraStatusEl.textContent = 'Camera: Off'; cameraStatusEl.classList.remove('active'); }
+        else if (s.camera === 'Error') { cameraStatusEl.textContent = 'Camera: Error'; cameraStatusEl.classList.remove('active'); }
+        analysisStatusEl.textContent = s.analyzing ? 'Analysis: Running' : 'Analysis: Stopped';
+        analysisStatusEl.classList.toggle('running', !!s.analyzing);
+      },
+      onPrediction(data, ok){
+        if (!ok){ resultEl.textContent = 'Error: ' + (data.error || 'request failed'); feedbackEl.textContent=''; return; }
+        updatePoseFeedback(data.pose, data.confidence);
+      }
+    });
+    
+    function updatePoseFeedback(predictedPose, confidence) {
+      const targetPose = window.__targetPose;
+      
+      // Update result display
+      resultEl.textContent = `Detected: ${predictedPose} (${(confidence*100).toFixed(1)}%)`;
+      
+      if (!targetPose) {
+        feedbackEl.textContent = 'Select a pose to begin analysis';
+        feedbackEl.style.color = 'blue';
+        return;
+      }
+      
+      const targetBase = baseName(targetPose);
+      const predictedBase = baseName(predictedPose);
+      
+      // Check if pose matches target
+      let msg;
+      if (predictedBase && (predictedBase.includes(targetBase) || targetBase.includes(predictedBase))) {
+        msg = 'Great job! Correct pose detected.';
+        feedbackEl.textContent = '✅ ' + msg;
+        feedbackEl.style.color = 'green';
+      } else if (confidence > 0.70) {
+        msg = `That's ${predictedPose}, not ${targetPose.split('(')[0]}.`;
+        feedbackEl.textContent = '❌ ' + msg;
+        feedbackEl.style.color = 'red';
+      } else if (confidence > 0.50) {
+        msg = 'Try to match the selected pose better.';
+        feedbackEl.textContent = '⚠️ ' + msg;
+        feedbackEl.style.color = 'orange';
+      } else {
+        msg = 'Please get fully in frame and try the pose.';
+        feedbackEl.textContent = '⚠️ ' + msg;
+        feedbackEl.style.color = 'blue';
+      }
+
+      // Add coaching hint if confidence is not high
+      const hint = confidence < 0.8 ? nextCoachingHint(targetPose || predictedPose) : '';
+      const toSpeak = hint ? `${msg} ${hint}` : msg;
+      speakIfNeeded(toSpeak);
+    }
+    
+    // Event listeners
+    startBtn && (startBtn.onclick = controller.start);
+    stopBtn && (stopBtn.onclick = controller.stop);
+    predictBtn && (predictBtn.onclick = controller.predict);
+    expandBtn && (expandBtn.onclick = function(){
+      const expanded = controller.toggleExpand({ width: 720, height: 540 });
+      expandBtn.textContent = expanded ? 'Expanded' : 'Expand';
+    });
+    collapseBtn && (collapseBtn.onclick = function(){
+      controller.toggleExpand({ width: 720, height: 540 });
+      expandBtn.textContent = 'Expand';
+    });
+
+    // Setup function for compatibility (no longer needed but kept for API calls)
+    async function setupPose(){ console.log('Pose classification only.'); }
+    controller.start().catch(()=>{});
+
+    // Voice feedback using Web Speech API + simple coaching hints
+    let voiceEnabled = false;
+    let lastSpoken = '';
+    let lastSpokenAt = 0;
+    const genericHints = [
+      'Stretch your arms fully.',
+      'Engage your core and keep your back straight.',
+      'Align your legs and distribute weight evenly.',
+      'Relax your shoulders away from your ears.',
+      'Keep your neck neutral and gaze forward.',
+      'Plant your feet firmly and lengthen the spine.'
+    ];
+    let hintIndex = 0;
+    function nextCoachingHint(poseName){
+      // Rotate through generic hints; in future we can load pose-specific tips
+      const tip = genericHints[hintIndex % genericHints.length];
+      hintIndex++;
+      return tip;
+    }
+    function speak(text){
+      try {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0; u.pitch = 1.0; u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+      } catch(_) {}
+    }
+    function speakIfNeeded(text){
+      if (!voiceEnabled) return;
+      const now = Date.now();
+      if (text && (text !== lastSpoken) && (now - lastSpokenAt > 2500)){
+        lastSpoken = text; lastSpokenAt = now; speak(text);
+      }
+    }
+    voiceToggle.onclick = function(){
+      voiceEnabled = !voiceEnabled;
+      voiceToggle.textContent = 'Voice: ' + (voiceEnabled ? 'On' : 'Off');
+      if (!voiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    };
+  </script>
+</body>
+</html>
+
+

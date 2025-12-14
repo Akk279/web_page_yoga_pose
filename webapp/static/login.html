@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Login</title>
+  <style>
+    :root {
+      --brand: #2E7D32;
+      --brand-lite: #CDE5C7;
+      --accent: #E53935;
+      --ink: #0f172a;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font-family: system-ui, Arial, sans-serif; 
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: var(--ink); 
+      min-height: 100vh;
+    }
+    
+    /* Navigation */
+    .nav { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 12px 20px; 
+      background: var(--brand); 
+      color: #fff; 
+    }
+    .nav a { color: #fff; text-decoration: none; margin-left: 16px; }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .5px; }
+    
+    /* Main Container */
+    .container { 
+      max-width: 450px; 
+      margin: 40px auto; 
+      padding: 0 16px; 
+    }
+    
+    /* Card */
+    .card { 
+      background: #fff; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 16px; 
+      padding: 32px; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card h2 {
+      text-align: center; 
+      margin-bottom: 8px;
+      color: var(--brand);
+      font-size: 28px;
+      font-weight: 800;
+    }
+    
+    .card .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+    
+    /* Form */
+    .form-group { 
+      margin-bottom: 20px; 
+    }
+    
+    .form-group label { 
+      display: block; 
+      margin-bottom: 6px; 
+      font-weight: 600; 
+      color: var(--ink);
+      font-size: 14px;
+    }
+    
+    .form-group input { 
+      width: 100%; 
+      padding: 12px 16px; 
+      border: 2px solid #e2e8f0; 
+      border-radius: 8px; 
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--brand);
+    }
+    
+    .btn { 
+      width: 100%; 
+      padding: 14px; 
+      background: var(--brand); 
+      color: #fff; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: 600; 
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .btn:hover { 
+      background: #1B5E20; 
+    }
+    
+    .btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    
+    /* Links */
+    .link { 
+      text-align: center; 
+      margin-top: 24px; 
+    }
+    
+    .link a { 
+      color: var(--brand); 
+      text-decoration: none; 
+      font-weight: 600;
+    }
+    
+    .link a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Toggle */
+    .toggle-container {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .toggle-btn {
+      background: #f1f5f9;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+    
+    .toggle-btn.active {
+      background: var(--brand);
+      color: #fff;
+    }
+    
+    /* Messages */
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .message.success {
+      background: #f0fdf4;
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+    }
+    
+    .message.error {
+      background: #fef2f2;
+      color: var(--error);
+      border: 1px solid #fecaca;
+    }
+    
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container { margin: 20px auto; }
+      .card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <a href="/"><span style="font-size:22px">✋</span> 
+      <span>ANT</span></a>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+      <a class="btn light" id="authBtn" href="/login" style="padding:8px 12px; border-radius:8px; background:#fff; color:#2E7D32;">Login</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="toggle-container">
+        <button class="toggle-btn active" id="loginToggle" onclick="showLogin()">Login</button>
+        <button class="toggle-btn" id="registerToggle" onclick="showRegister()">Register</button>
+      </div>
+      
+      <div id="messageContainer"></div>
+      
+      <!-- Login Form -->
+      <div id="loginForm">
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Sign in to continue your yoga journey</p>
+        
+        <form id="loginFormElement">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn" id="loginBtn">
+            <span class="btn-text">Sign In</span>
+          </button>
+        </form>
+      </div>
+      
+      <!-- Register Form -->
+      <div id="registerForm" style="display: none;">
+        <h2>Join ANT</h2>
+        <p class="subtitle">Start your personalized yoga journey</p>
+        
+        <form id="registerFormElement">
+          <div class="form-group">
+            <label for="regUsername">Username</label>
+            <input type="text" id="regUsername" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="regEmail">Email (Optional)</label>
+            <input type="email" id="regEmail" name="email">
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" name="password" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirm_password" required>
+          </div>
+          <button type="submit" class="btn" id="registerBtn">
+            <span class="btn-text">Create Account</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentForm = 'login';
+    
+    function showMessage(message, type = 'error') {
+      const container = document.getElementById('messageContainer');
+      container.innerHTML = `<div class="message ${type}">${message}</div>`;
+      
+      // Auto-hide success messages
+      if (type === 'success') {
+        setTimeout(() => {
+          container.innerHTML = '';
+        }, 3000);
+      }
+    }
+    
+    function showLogin() {
+      currentForm = 'login';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginToggle').classList.add('active');
+      document.getElementById('registerToggle').classList.remove('active');
+      document.getElementById('messageContainer').innerHTML = '';
+    }
+    
+    function showRegister() {
+      currentForm = 'register';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginToggle').classList.remove('active');
+      document.getElementById('registerToggle').classList.add('active');
+      document.getElementById('messageContainer').innerHTML = '';
+    }
+    
+    function setLoading(buttonId, loading) {
+      const btn = document.getElementById(buttonId);
+      const btnText = btn.querySelector('.btn-text');
+      
+      if (loading) {
+        btn.disabled = true;
+        btnText.innerHTML = '<span class="loading"></span>Processing...';
+      } else {
+        btn.disabled = false;
+        btnText.textContent = buttonId === 'loginBtn' ? 'Sign In' : 'Create Account';
+      }
+    }
+    
+    // Login Form
+    document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      setLoading('loginBtn', true);
+      
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Store session data
+          localStorage.setItem('session_id', result.session_id);
+          localStorage.setItem('user_id', result.user_id);
+          localStorage.setItem('username', result.username);
+          
+          showMessage('Login successful! Redirecting...', 'success');
+          
+          // Redirect to dashboard after short delay
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1000);
+        } else {
+          showMessage(result.message || 'Login failed');
+        }
+      } catch (error) {
+        showMessage('Network error: ' + error.message);
+      } finally {
+        setLoading('loginBtn', false);
+      }
+    });
+    
+    // Register Form
+    document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      // Validate passwords match
+      if (data.password !== data.confirm_password) {
+        showMessage('Passwords do not match');
+        return;
+      }
+      
+      setLoading('registerBtn', true);
+      
+      try {
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showMessage('Account created successfully! Please sign in.', 'success');
+          
+          // Switch to login form
+          setTimeout(() => {
+            showLogin();
+            document.getElementById('username').value = data.username;
+          }, 1500);
+        } else {
+          showMessage(result.message || 'Registration failed');
+        }
+      } catch (error) {
+        showMessage('Network error: ' + error.message);
+      } finally {
+        setLoading('registerBtn', false);
+      }
+    });
+    
+    // Check if already logged in
+    window.addEventListener('load', () => {
+      const sessionId = localStorage.getItem('session_id');
+      if (sessionId) {
+        // Validate session
+        fetch(`/auth/session/${sessionId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.valid) {
+              window.location.href = '/dashboard';
+            }
+          })
+          .catch(() => {
+            // Session invalid, clear storage
+            localStorage.removeItem('session_id');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+          });
+      }
+      // Update auth button state
+      const btn = document.getElementById('authBtn');
+      if (btn){
+        if (sessionId){
+          btn.textContent = 'Logout';
+          btn.href = '#';
+          btn.onclick = async function(e){
+            e.preventDefault();
+            try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sessionId }) }); } catch(_){}
+            localStorage.clear();
+            location.href = '/login';
+          };
+        } else {
+          btn.textContent = 'Login';
+          btn.href = '/login';
+          btn.onclick = null;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

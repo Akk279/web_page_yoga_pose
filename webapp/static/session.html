@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Start Session</title>
+  <style>
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; background:#f8fafc; color:#0f172a; }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#2E7D32; color:#fff; }
+    .nav a { color:#fff; text-decoration:none; margin-left:16px; }
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .row { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+    .panel { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px; }
+    video, canvas { background:#000; width:480px; height:360px; border-radius:8px; }
+    /* Expanded camera */
+    .expanded { width:960px !important; height:720px !important; }
+    /* Fullscreen container style */
+    .fullscreen-overlay { position:fixed; inset:0; background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .fullscreen-overlay .panel { background:transparent; border:none; }
+    #frame { display:none; } /* hidden 224x224 upload buffer */
+    .controls { display:flex; gap:8px; margin-top:8px; }
+    .result { font-size:18px; margin-top:8px; }
+    @media (max-width: 520px) { video, canvas { width:100%; height:auto; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div><a href="/">⟵ Home</a></div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/session">Session</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Start Session</h1>
+    <div class="row">
+      <div class="panel">
+        <video id="video" autoplay playsinline></video>
+        <div class="controls">
+          <button id="startBtn">Start Camera</button>
+          <button id="stopBtn">Stop Camera</button>
+          <button id="expandBtn">Expand</button>
+          <button id="collapseBtn">Collapse</button>
+        </div>
+      </div>
+      <div class="panel">
+        <canvas id="frame" width="224" height="224"></canvas>
+        <div class="controls">
+          <button id="predictBtn">Predict Frame</button>
+          <label>
+            API Base:
+            <input id="apiBase" value="http://127.0.0.1:8000" style="width:220px" />
+          </label>
+          <button id="voiceToggle" title="Toggle voice feedback">Voice: Off</button>
+        </div>
+        <div class="result" id="result">Result: —</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/camera.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvasUpload = document.getElementById('frame');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const predictBtn = document.getElementById('predictBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const collapseBtn = document.getElementById('collapseBtn');
+    const resultEl = document.getElementById('result');
+    const apiBaseInput = document.getElementById('apiBase');
+    const voiceToggle = document.getElementById('voiceToggle');
+
+    const controller = CameraModule.createController({
+      video,
+      canvas: canvasUpload,
+      apiBaseInput,
+      intervalMs: 1000,
+      onPrediction(data, ok){
+        if (ok) {
+          resultEl.textContent = `Result: ${data.pose} (${(data.confidence*100).toFixed(1)}%)`;
+          provideVoiceFeedback(data.pose, data.confidence);
+        } else {
+          resultEl.textContent = 'Error: ' + (data.error || 'request failed');
+        }
+      }
+    });
+
+    function toggleExpand(){
+      // Use in-place reduced expansion (720x540). For fullscreen use controller.toggleFullscreen()
+      const expanded = controller.toggleExpand({ width: 720, height: 540 });
+      expandBtn.textContent = expanded ? 'Expanded' : 'Expand';
+    }
+    function collapse(){
+      // Collapse regardless of state
+      controller.toggleExpand({ width: 720, height: 540 }); // toggles back if expanded
+      expandBtn.textContent = 'Expand';
+    }
+
+    startBtn.onclick = controller.start;
+    stopBtn.onclick = controller.stop;
+    predictBtn.onclick = controller.predict;
+    expandBtn.onclick = toggleExpand;
+    collapseBtn.onclick = collapse;
+
+    controller.start().catch(e => alert('Camera error: ' + e.message));
+
+    // Voice feedback for session (no target pose, just encouragements)
+    let voiceEnabled = false;
+    let lastSpoken = '';
+    let lastSpokenAt = 0;
+    function speak(text){
+      try { if (!('speechSynthesis' in window)) return; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate=1; u.pitch=1; u.lang='en-US'; window.speechSynthesis.speak(u);} catch(_) {}
+    }
+    function speakIfNeeded(text){
+      if (!voiceEnabled) return;
+      const now = Date.now();
+      if (text && (text !== lastSpoken) && (now - lastSpokenAt > 2500)) { lastSpoken=text; lastSpokenAt=now; speak(text);} }
+    const genericHints = [
+      'Stretch your arms fully.',
+      'Keep legs aligned and stable.',
+      'Straighten your back and engage the core.',
+      'Relax shoulders and open the chest.',
+      'Keep your gaze steady and breathe.'
+    ];
+    let hintIdx = 0;
+    function nextHint(){ const t = genericHints[hintIdx % genericHints.length]; hintIdx++; return t; }
+    function provideVoiceFeedback(pose, conf){
+      const c = conf || 0;
+      let msg;
+      if (c > 0.85) msg = `Nice ${pose}. Hold it.`;
+      else if (c > 0.65) msg = `Good ${pose}. Keep refining.`;
+      else msg = `Adjust for ${pose}.`;
+      const tip = c < 0.85 ? nextHint() : '';
+      speakIfNeeded(tip ? `${msg} ${tip}` : msg);
+    }
+    voiceToggle.onclick = function(){
+      voiceEnabled = !voiceEnabled;
+      voiceToggle.textContent = 'Voice: ' + (voiceEnabled ? 'On' : 'Off');
+      if (!voiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    };
+  </script>
+</body>
+</html>
+
+

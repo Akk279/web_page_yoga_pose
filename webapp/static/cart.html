@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Cart</title>
+  <style>
+    :root { --brand: #2E7D32; --accent: #E53935; --ink: #0f172a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; background: #f8fafc; color: var(--ink); }
+    a { color: inherit; text-decoration: none; }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 10; }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .nav .links { display: flex; gap: 18px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.light { background: #fff; color: var(--brand); }
+    .section { padding: 40px 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+    .item:last-child { border-bottom: none; }
+    .price { font-weight: 700; color: var(--brand); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .muted { color: #64748b; }
+    .empty { text-align: center; color: #64748b; padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><a href="/"><span style="font-size:22px">✋</span> <span>ANT</span></a></div>
+    <nav class="links">
+      <a href="/">Home</a>
+      <a href="/shop">Shop</a>
+      <a href="/cart">Cart</a>
+      <a href="/checkout">Checkout</a>
+      <a class="btn light" id="authBtn" href="/login">Login</a>
+      <a class="btn primary" href="/session">Start Session</a>
+    </nav>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <h1>Your Cart</h1>
+      <div class="card">
+        <div id="cartItems"></div>
+        <div id="cartSummary" class="row" style="justify-content: space-between; margin-top: 12px;">
+          <div class="muted">Items: <span id="itemCount">0</span></div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div>Total: <span class="price" id="totalPrice">$0.00</span></div>
+            <a class="btn primary" href="/checkout">Proceed to Checkout</a>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn light" id="clearCart" style="border: 1px solid #cbd5e1; background:#fff; color: var(--ink);">Clear Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const authBtn = document.getElementById('authBtn');
+    function wireAuthBtn(){
+      const sid = localStorage.getItem('session_id');
+      if (!authBtn) return;
+      if (sid) {
+        authBtn.textContent = 'Logout';
+        authBtn.href = '#';
+        authBtn.onclick = async function(e){
+          e.preventDefault();
+          try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sid }) }); } catch(_){ }
+          localStorage.clear();
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.href = '/login';
+        authBtn.onclick = null;
+      }
+    }
+    window.addEventListener('storage', wireAuthBtn);
+    wireAuthBtn();
+
+    function loadCart(){
+      try { return JSON.parse(localStorage.getItem('cart_items') || '[]'); }
+      catch { return []; }
+    }
+    function saveCart(items){
+      localStorage.setItem('cart_items', JSON.stringify(items));
+    }
+
+    function renderCart(){
+      const container = document.getElementById('cartItems');
+      const countEl = document.getElementById('itemCount');
+      const totalEl = document.getElementById('totalPrice');
+      const items = loadCart();
+      container.innerHTML = '';
+      if (!items.length){
+        container.innerHTML = '<div class="empty">Your cart is empty.</div>';
+        countEl.textContent = '0';
+        totalEl.textContent = '$0.00';
+        return;
+      }
+      let total = 0;
+      let totalQty = 0;
+      items.forEach((item, idx) => {
+        const price = Number(item.price) || 0;
+        const qty = Math.max(1, Number(item.qty) || 1);
+        const lineTotal = price * qty;
+        total += lineTotal;
+        totalQty += qty;
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div>
+            <div><strong>${item.name || 'Item'}</strong></div>
+            <div class="muted">Qty: ${qty}</div>
+          </div>
+          <div class="row">
+            <div class="price">$${lineTotal.toFixed(2)}</div>
+            <button data-idx="${idx}" class="btn light" style="border:1px solid #cbd5e1; background:#fff; color: var(--ink);">Remove</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      countEl.textContent = String(totalQty);
+      totalEl.textContent = `$${total.toFixed(2)}`;
+
+      container.querySelectorAll('button[data-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          const itemsNow = loadCart();
+          if (itemsNow[idx]) {
+            const currQty = Math.max(1, Number(itemsNow[idx].qty) || 1);
+            if (currQty > 1) {
+              itemsNow[idx].qty = currQty - 1;
+            } else {
+              itemsNow.splice(idx, 1);
+            }
+          }
+          saveCart(itemsNow);
+          renderCart();
+        });
+      });
+    }
+
+    document.getElementById('clearCart').addEventListener('click', () => {
+      localStorage.removeItem('cart_items');
+      renderCart();
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>
+

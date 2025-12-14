@@ -1,0 +1,48 @@
+{
+  "achievements": [
+    {
+      "achievement_id": "first_session",
+      "name": "First Steps",
+      "description": "Complete your first yoga session",
+      "icon": "\ud83c\udf31",
+      "requirements": {
+        "sessions": 1
+      },
+      "reward_xp": 50,
+      "category": "practice"
+    },
+    {
+      "achievement_id": "week_streak",
+      "name": "Consistent Practice",
+      "description": "Practice for 7 days in a row",
+      "icon": "\ud83d\udd25",
+      "requirements": {
+        "streak": 7
+      },
+      "reward_xp": 200,
+      "category": "streak"
+    },
+    {
+      "achievement_id": "pose_master",
+      "name": "Pose Master",
+      "description": "Master 10 different poses",
+      "icon": "\ud83e\uddd8\u200d\u2640\ufe0f",
+      "requirements": {
+        "poses_learned": 10
+      },
+      "reward_xp": 300,
+      "category": "pose"
+    },
+    {
+      "achievement_id": "hour_practice",
+      "name": "Hour of Power",
+      "description": "Practice for a total of 60 minutes",
+      "icon": "\u23f0",
+      "requirements": {
+        "total_time": 60
+      },
+      "reward_xp": 150,
+      "category": "time"
+    }
+  ]
+}

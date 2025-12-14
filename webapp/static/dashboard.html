@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Progress Dashboard</title>
+  <style>
+    :root {
+      --brand: #2E7D32;
+      --brand-lite: #CDE5C7;
+      --accent: #E53935;
+      --ink: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font-family: system-ui, Arial, sans-serif; 
+      background: #f8fafc; 
+      color: var(--ink); 
+    }
+    
+    /* Navigation */
+    .nav { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 12px 20px; 
+      background: var(--brand); 
+      color: #fff; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100;
+    }
+    .nav a { color: #fff; text-decoration: none; margin-left: 16px; }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .5px; }
+    
+    /* Main Container */
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 24px 16px; 
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: clamp(28px, 4vw, 48px);
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-weight: 800;
+    }
+    
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card h3 {
+      margin: 0 0 16px;
+      color: var(--brand);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    /* Stats Cards */
+    .stat-card {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--brand);
+      margin: 8px 0;
+    }
+    
+    .stat-label {
+      color: #64748b;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand), var(--success));
+      transition: width 0.3s ease;
+    }
+    
+    /* Level Card */
+    .level-card {
+      background: linear-gradient(135deg, var(--brand), var(--success));
+      color: #fff;
+    }
+    
+    .level-card h3 {
+      color: #fff;
+    }
+    
+    .level-number {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+    
+    .level-name {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    
+    /* Achievement Grid */
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+    }
+    
+    .achievement-item {
+      text-align: center;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    
+    .achievement-item.earned {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+    
+    .achievement-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    
+    .achievement-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Leaderboard */
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+    
+    .rank {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--brand);
+      width: 30px;
+    }
+    
+    .user-info {
+      flex: 1;
+      margin-left: 12px;
+    }
+    
+    .username {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .user-stats {
+      font-size: 12px;
+      color: #64748b;
+    }
+    
+    .user-xp {
+      font-weight: 600;
+      color: var(--brand);
+    }
+    
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+    
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50%;
+      border-top-color: var(--brand);
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 16px 12px; }
+      .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
+      .achievement-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <a href="/"><span style="font-size:22px">✋</span> 
+      <span>ANT</span></a>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/session">Session</a>
+      <a href="/dashboard">Dashboard</a>
+      <a id="authBtn" href="#" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="header">
+      <h1>Welcome back, <span id="userDisplayName">User</span>!</h1>
+      <p>Track your yoga journey and achievements · <a href="/instructions" style="color:#2E7D32; font-weight:600; text-decoration:none">How XP & Achievements work</a></p>
+    </div>
+    
+    <div id="dashboardContent" class="dashboard-grid">
+      <div class="loading">Loading your progress...</div>
+    </div>
+  </main>
+
+  <script>
+    // Get user data from localStorage (set during login)
+    const SESSION_ID = localStorage.getItem('session_id');
+    const USER_ID = localStorage.getItem('user_id');
+    const USERNAME = localStorage.getItem('username');
+    
+    // Check authentication
+    if (!SESSION_ID || !USER_ID) {
+      window.location.href = '/login';
+    }
+    
+    async function loadDashboard() {
+      try {
+        // Validate session first
+        const sessionResponse = await fetch(`/auth/session/${SESSION_ID}`);
+        const sessionData = await sessionResponse.json();
+        
+        if (!sessionData.valid) {
+          // Session invalid, redirect to login
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
+        
+        // Load user progress
+        const progressResponse = await fetch(`/gamification/progress/${USER_ID}`);
+        if (!progressResponse.ok) {
+          throw new Error('Failed to load progress');
+        }
+        const progressData = await progressResponse.json();
+        
+        // Load leaderboard
+        const leaderboardResponse = await fetch('/gamification/leaderboard?limit=5');
+        const leaderboardData = await leaderboardResponse.json();
+        
+        // Load achievements
+        const achievementsResponse = await fetch('/gamification/achievements');
+        const achievementsData = await achievementsResponse.json();
+        
+        // Load user profile
+        const profileResponse = await fetch(`/auth/profile/${USER_ID}`);
+        const profileData = await profileResponse.json();
+        
+        // Update user display name
+        document.getElementById('userDisplayName').textContent = USERNAME || 'User';
+        
+        // Render dashboard
+        renderDashboard(progressData, leaderboardData, achievementsData, profileData);
+        
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        document.getElementById('dashboardContent').innerHTML = `
+          <div class="card">
+            <h3>Error</h3>
+            <p>Failed to load dashboard data. Please try again.</p>
+            <button onclick="window.location.reload()" class="btn" style="margin-top: 16px;">Retry</button>
+          </div>
+        `;
+      }
+    }
+    
+    function renderDashboard(progress, leaderboard, achievements, profile) {
+      const progressData = progress.progress;
+      const stats = progress;
+      
+      const dashboardHTML = `
+        <!-- Level Card -->
+        <div class="card level-card">
+          <h3>Your Level</h3>
+          <div class="level-number">${progressData.level}</div>
+          <div class="level-name">${progress.level_info?.name || 'Beginner'}</div>
+          <div style="margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;">
+              <span>${progressData.experience_points} XP</span>
+              <span>${progress.next_level_xp || 0} to next level</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${calculateLevelProgress(progressData.experience_points, progress.next_level_xp)}%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="card stat-card">
+          <h3>Practice Stats</h3>
+          <div class="stat-value">${progressData.total_sessions}</div>
+          <div class="stat-label">Total Sessions</div>
+        </div>
+        
+        <div class="card stat-card">
+          <h3>Practice Time</h3>
+          <div class="stat-value">${progressData.total_practice_time}</div>
+          <div class="stat-label">Minutes</div>
+        </div>
+        
+        <div class="card stat-card">
+          <h3>Current Streak</h3>
+          <div class="stat-value">${progressData.current_streak}</div>
+          <div class="stat-label">Days</div>
+        </div>
+        
+        <div class="card stat-card">
+          <h3>Poses Learned</h3>
+          <div class="stat-value">${progressData.poses_learned.length}</div>
+          <div class="stat-label">Different Poses</div>
+        </div>
+        
+        <!-- Achievements -->
+        <div class="card">
+          <h3>Achievements</h3>
+          <div class="achievement-grid">
+            ${achievements.map(ach => `
+              <div class="achievement-item ${progress.achievements.some(uach => uach.achievement_id === ach.achievement_id) ? 'earned' : ''}">
+                <div class="achievement-icon">${ach.icon}</div>
+                <div class="achievement-name">${ach.name}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <!-- Leaderboard -->
+        <div class="card">
+          <h3>Leaderboard</h3>
+          ${leaderboard.map(user => `
+            <div class="leaderboard-item">
+              <div class="rank">${user.rank}</div>
+              <div class="user-info">
+                <div class="username">${user.username}</div>
+                <div class="user-stats">Level ${user.level} • ${user.current_streak} day streak</div>
+              </div>
+              <div class="user-xp">${user.total_xp} XP</div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <!-- Weekly Stats -->
+        <div class="card">
+          <h3>This Week</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+            <div>
+              <div style="font-size: 24px; font-weight: 700; color: var(--brand);">${stats.weekly_stats?.sessions_this_week || 0}</div>
+              <div style="font-size: 12px; color: #64748b;">Sessions</div>
+            </div>
+            <div>
+              <div style="font-size: 24px; font-weight: 700; color: var(--brand);">${stats.weekly_stats?.time_this_week || 0}</div>
+              <div style="font-size: 12px; color: #64748b;">Minutes</div>
+            </div>
+            <div>
+              <div style="font-size: 24px; font-weight: 700; color: var(--brand);">${stats.weekly_stats?.poses_this_week || 0}</div>
+              <div style="font-size: 12px; color: #64748b;">Poses</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('dashboardContent').innerHTML = dashboardHTML;
+    }
+    
+    function calculateLevelProgress(currentXP, nextLevelXP) {
+      if (!nextLevelXP) return 100;
+      const currentLevelXP = currentXP - (nextLevelXP - 100); // Approximate previous level XP
+      const progress = ((currentXP - currentLevelXP) / 100) * 100;
+      return Math.min(progress, 100);
+    }
+    
+    // Logout function
+    async function logout() {
+      try {
+        if (SESSION_ID) {
+          await fetch('/auth/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: SESSION_ID })
+          });
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        // Clear localStorage and redirect
+        localStorage.clear();
+        window.location.href = '/login';
+      }
+    }
+    
+    // Load dashboard on page load
+    loadDashboard();
+  </script>
+</body>
+</html>

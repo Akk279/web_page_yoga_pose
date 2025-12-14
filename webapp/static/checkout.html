@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Checkout</title>
+  <style>
+    :root { --brand: #2E7D32; --accent: #E53935; --ink: #0f172a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; background: #f8fafc; color: var(--ink); }
+    a { color: inherit; text-decoration: none; }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 10; }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .nav .links { display: flex; gap: 18px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.light { background: #fff; color: var(--brand); }
+    .section { padding: 40px 20px; }
+    .container { max-width: 1000px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 2fr 1fr; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; }
+    .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+    .price { font-weight: 700; color: var(--brand); }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><a href="/"><span style="font-size:22px">✋</span> <span>ANT</span></a></div>
+    <nav class="links">
+      <a href="/">Home</a>
+      <a href="/shop">Shop</a>
+      <a href="/cart">Cart</a>
+      <a href="/checkout">Checkout</a>
+      <a class="btn light" id="authBtn" href="/login">Login</a>
+      <a class="btn primary" href="/session">Start Session</a>
+    </nav>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Shipping & Contact</h2>
+        <form id="checkoutForm">
+          <div class="row">
+            <div>
+              <label for="name">Full Name</label>
+              <input id="name" name="name" placeholder="Alex Yoga" required />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" required />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="address">Address</label>
+              <input id="address" name="address" placeholder="123 Yoga Street" required />
+            </div>
+            <div>
+              <label for="city">City</label>
+              <input id="city" name="city" placeholder="Your City" required />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="zip">ZIP/Postal</label>
+              <input id="zip" name="zip" placeholder="00000" required />
+            </div>
+            <div>
+              <label for="country">Country</label>
+              <input id="country" name="country" placeholder="Country" required />
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Delivery notes (optional)"></textarea>
+          </div>
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn primary">Place Order (placeholder)</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Order Summary</h2>
+        <div id="summaryItems"></div>
+        <div class="summary-item" style="font-weight:700;">
+          <span>Total</span>
+          <span class="price" id="summaryTotal">$0.00</span>
+        </div>
+        <p style="color:#64748b; font-size:14px; margin-top:12px;">Checkout is a placeholder; no payment is processed.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const authBtn = document.getElementById('authBtn');
+    function wireAuthBtn(){
+      const sid = localStorage.getItem('session_id');
+      if (!authBtn) return;
+      if (sid) {
+        authBtn.textContent = 'Logout';
+        authBtn.href = '#';
+        authBtn.onclick = async function(e){
+          e.preventDefault();
+          try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sid }) }); } catch(_){ }
+          localStorage.clear();
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.href = '/login';
+        authBtn.onclick = null;
+      }
+    }
+    window.addEventListener('storage', wireAuthBtn);
+    wireAuthBtn();
+
+    function loadCart(){
+      try { return JSON.parse(localStorage.getItem('cart_items') || '[]'); }
+      catch { return []; }
+    }
+
+    function renderSummary(){
+      const items = loadCart();
+      const container = document.getElementById('summaryItems');
+      const totalEl = document.getElementById('summaryTotal');
+      container.innerHTML = '';
+      if (!items.length){
+        container.innerHTML = '<div class="summary-item" style="justify-content:center; color:#64748b;">No items in cart.</div>';
+        totalEl.textContent = '$0.00';
+        return;
+      }
+      let total = 0;
+      items.forEach(item => {
+        const price = Number(item.price) || 0;
+        total += price;
+        const row = document.createElement('div');
+        row.className = 'summary-item';
+        row.innerHTML = `<span>${item.name || 'Item'}</span><span>$${price.toFixed(2)}</span>`;
+        container.appendChild(row);
+      });
+      totalEl.textContent = `$${total.toFixed(2)}`;
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const name = form.get('name') || 'Guest';
+      alert(`Thanks, ${name}!\\n\\nCheckout is a placeholder. Your cart will be cleared.`);
+      localStorage.removeItem('cart_items');
+      renderSummary();
+    });
+
+    renderSummary();
+  </script>
+</body>
+</html>
+

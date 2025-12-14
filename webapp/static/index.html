@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – AI Yoga Trainer</title>
+  <style>
+    :root {
+      --brand: #2E7D32;
+      --brand-lite: #CDE5C7;
+      --accent: #E53935;
+      --ink: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; color: var(--ink); background: #f8fafc; }
+    a { color: inherit; text-decoration: none; }
+    /* Navbar */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 10;
+    }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .5px; }
+    .nav .links { display: flex; gap: 18px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.light { background: #fff; color: var(--brand); }
+    /* Hero */
+    .hero {
+      min-height: 70vh; display: grid; align-items: center; padding: 40px 20px; position: relative;
+      background: linear-gradient( to bottom, rgba(18,48,18,.65), rgba(18,48,18,.65) ),
+                  url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+      color: #fff;
+    }
+    .hero .wrap { max-width: 1100px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(36px, 6vw, 64px); margin: 0 0 8px; line-height: 1.05; }
+    .hero p { font-size: clamp(16px, 2.5vw, 20px); opacity: .95; max-width: 680px; }
+    .cta { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+    /* Section */
+    .section { padding: 48px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; }
+    .info-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; }
+    .info-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .gallery { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+    .gallery img { width:100%; height:180px; object-fit:cover; border-radius:10px; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><a href="/"><span style="font-size:22px">✋</span> <span>ANT</span></a></div>
+    <nav class="links">
+      <a href="#">Home</a>
+      <a href="#about">About</a>
+      <a href="#benefits">Benefits</a>
+      <a href="/shop">Shop</a>
+      <a href="/book-instructor">Book Instructor</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/cart">Cart</a>
+      <a class="btn light" id="authBtn" href="/login">Login</a>
+      <a class="btn primary" href="/session">Start Session</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <p style="letter-spacing:.2em; text-transform:uppercase; opacity:.9; margin:0 0 6px;">YOUR AI COMPANION…</p>
+      <h1>Stay healthy with the help of ANT</h1>
+      <p>Welcome to ANT – where artificial intelligence meets ancient yoga wisdom. Start a live camera session and get pose predictions instantly.</p>
+      <div class="cta">
+        <a class="btn primary" href="/session">Start Session Now</a>
+        <a class="btn light" href="#about">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="container">
+      <h2>About</h2>
+      <p>ANT analyzes your posture in real-time and classifies yoga asanas using a fine‑tuned TensorFlow model. Your media stays local—only a frame snapshot is sent to the API when you request a prediction.</p>
+    </div>
+  </section>
+
+  <section id="benefits" class="section" style="background: #f0f7f1;">
+    <div class="container">
+      <h2 style="text-align: center; color: var(--brand); margin-bottom: 24px;">Why Yoga?</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Strength & Mobility</h3>
+          <p>Build balanced strength in core, hips, and shoulders while improving joint range of motion.</p>
+        </div>
+        <div class="info-card">
+          <h3>Balance & Focus</h3>
+          <p>Develop proprioception, stability, and mental clarity through mindful movement and breath.</p>
+        </div>
+        <div class="info-card">
+          <h3>Recovery & Longevity</h3>
+          <p>Reduce stress, aid recovery, and support healthy posture for everyday life and sport.</p>
+        </div>
+        <div class="info-card">
+          <h3>Breath & Calm</h3>
+          <p>Pairing breath with movement downshifts the nervous system and builds resilience.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 style="margin-bottom:16px;">Science-backed benefits</h2>
+      <ul style="line-height:1.6; color:#475569;">
+        <li>Improves flexibility and muscular endurance with consistent practice.</li>
+        <li>Supports cardiovascular health through controlled breathing and flow.</li>
+        <li>Enhances balance and proprioception, reducing fall risk.</li>
+        <li>Lowers perceived stress and can improve sleep quality.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" style="background:#f0f7f1;">
+    <div class="container">
+      <h2 style="text-align:center; margin-bottom:24px;">Practice snapshots</h2>
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop" alt="Yoga practice">
+        <img src="https://images.unsplash.com/photo-1552053566-ff5d1e15308f?q=80&w=800&auto=format&fit=crop" alt="Calm yoga">
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop" alt="Outdoor yoga">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" alt="Balance pose">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Getting started tips</h2>
+      <div class="row">
+        <div class="panel" style="flex:1; min-width:260px;">
+          <h3>Warm up</h3>
+          <p>Begin with gentle cat-cow, hip circles, and light lunges to prep joints.</p>
+        </div>
+        <div class="panel" style="flex:1; min-width:260px;">
+          <h3>Build gradually</h3>
+          <p>Practice 10–15 minutes daily; consistency beats intensity for mobility gains.</p>
+        </div>
+        <div class="panel" style="flex:1; min-width:260px;">
+          <h3>Listen to breath</h3>
+          <p>Let breath pace your movement. If breath shortens, ease the pose or rest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:#0f172a; color:#e2e8f0; padding:24px 20px;">
+    <div class="container" style="display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:center;">
+      <div>ANT – AI Yoga Trainer</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="/lessons" style="color:#e2e8f0;">Lessons</a>
+        <a href="/shop" style="color:#e2e8f0;">Shop</a>
+        <a href="/dashboard" style="color:#e2e8f0;">Dashboard</a>
+        <a href="/login" style="color:#e2e8f0;">Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Toggle Login/Logout based on localStorage session
+    const authBtn = document.getElementById('authBtn');
+    function wireAuthBtn(){
+      const sid = localStorage.getItem('session_id');
+      if (!authBtn) return;
+      if (sid) {
+        authBtn.textContent = 'Logout';
+        authBtn.href = '#';
+        authBtn.onclick = async function(e){
+          e.preventDefault();
+          try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sid }) }); } catch(_){ }
+          localStorage.clear();
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.href = '/login';
+        authBtn.onclick = null;
+      }
+    }
+    window.addEventListener('storage', wireAuthBtn);
+    wireAuthBtn();
+  </script>
+</body>
+</html>
+

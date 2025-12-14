@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Lessons</title>
+  <style>
+    :root {
+      --brand: #2E7D32;
+      --brand-lite: #CDE5C7;
+      --accent: #E53935;
+      --ink: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font-family: system-ui, Arial, sans-serif; 
+      background: #f8fafc; 
+      color: var(--ink); 
+      overflow-x: hidden;
+    }
+    
+    /* Navigation */
+    .nav { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 12px 20px; 
+      background: var(--brand); 
+      color: #fff; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100;
+    }
+    .nav a { color: #fff; text-decoration: none; margin-left: 16px; }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .5px; }
+    
+    /* Main Container */
+    .container { 
+      max-width: 100vw; 
+      margin: 0; 
+      padding: 24px 16px; 
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: clamp(28px, 4vw, 48px);
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-weight: 800;
+    }
+    .header p {
+      font-size: clamp(14px, 2vw, 18px);
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Search and Filter */
+    .controls {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    .search-box {
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      min-width: 300px;
+      background: #fff;
+    }
+    .search-box:focus {
+      outline: none;
+      border-color: var(--brand);
+    }
+    .filter-btn {
+      padding: 12px 20px;
+      border: 2px solid var(--brand);
+      background: #fff;
+      color: var(--brand);
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--brand);
+      color: #fff;
+    }
+    
+    /* Grid Layout */
+    .poses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    
+    /* Pose Cards */
+    .pose-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .pose-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--brand);
+    }
+    
+    .pose-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+    
+    .pose-card .content {
+      padding: 20px;
+    }
+    
+    .pose-card .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    
+    .pose-card .subtitle {
+      color: var(--brand);
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    
+    .pose-card .description {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.5;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    /* Category Badge */
+    .category-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(46, 125, 50, 0.9);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+    
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+    }
+    
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50%;
+      border-top-color: var(--brand);
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 16px 12px; }
+      .controls { flex-direction: column; align-items: stretch; }
+      .search-box { min-width: auto; }
+      .poses-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    }
+    
+    @media (max-width: 480px) {
+      .poses-grid { grid-template-columns: 1fr; }
+      .pose-card img { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <a href="/"><span style="font-size:22px">✋</span> 
+      <span>ANT</span></a>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/session">Start Session</a>
+      <a class="btn light" id="authBtn" href="/login" style="padding:8px 12px; border-radius:8px;">Login</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="header">
+      <h1>Yoga Poses Library</h1>
+      <p>Explore our comprehensive collection of yoga poses. Click any pose to start learning with live pose analysis.</p>
+    </div>
+    
+    <div class="controls">
+      <input type="text" class="search-box" id="searchBox" placeholder="Search poses by name or description...">
+      <button class="filter-btn active" data-category="all">All Poses</button>
+      <button class="filter-btn" data-category="🧘‍♂️ 1. Beginner-Friendly Poses">Beginner</button>
+      <button class="filter-btn" data-category="🧘‍♀️ 2. Good for Flexibility">Flexibility</button>
+      <button class="filter-btn" data-category="🧍 3. Good for Spine & Back">Spine & Back</button>
+      <button class="filter-btn" data-category="🧎 4. Great for Core Strength">Core</button>
+      <button class="filter-btn" data-category="🦵 5. Knee-Friendly / Strengthen Knees">Knee-Friendly</button>
+      <button class="filter-btn" data-category="🧠 6. Good for Balance & Focus">Balance & Focus</button>
+      <button class="filter-btn" data-category="🛏️ 7. Relaxation & Cooling Down">Relaxation</button>
+    </div>
+    
+    <div id="posesContainer" class="poses-grid">
+      <div class="loading">Loading poses...</div>
+    </div>
+  </main>
+
+  <script>
+    let allPoses = [];
+    let filteredPoses = [];
+    let poseIdToGroups = {}; // id -> [group titles]
+    
+    // Groups come from backend /lessons/categories; keys are emoji titles exactly
+    
+    async function loadPoses() {
+      try {
+        const res = await fetch('/lessons/data');
+        const data = await res.json();
+        allPoses = data.items || [];
+        filteredPoses = [...allPoses];
+        // Load grouping map
+        try {
+          const gres = await fetch('/lessons/categories');
+          const gdata = await gres.json();
+          poseIdToGroups = {};
+          Object.entries(gdata).forEach(([groupTitle, items]) => {
+            (items || []).forEach(it => {
+              const id = it.id;
+              if (!poseIdToGroups[id]) poseIdToGroups[id] = [];
+              poseIdToGroups[id].push(groupTitle);
+            });
+          });
+        } catch (_) { poseIdToGroups = {}; }
+        renderPoses();
+      } catch (error) {
+        console.error('Error loading poses:', error);
+        document.getElementById('posesContainer').innerHTML = '<div class="loading">Error loading poses. Please try again.</div>';
+      }
+    }
+    
+    function renderPoses() {
+      const container = document.getElementById('posesContainer');
+      
+      if (filteredPoses.length === 0) {
+        container.innerHTML = '<div class="loading">No poses found matching your criteria.</div>';
+        return;
+      }
+      
+      container.innerHTML = filteredPoses.map(pose => {
+        const category = getPoseCategoryForId(pose.id);
+        return `
+          <div class="pose-card" onclick="openLesson('${pose.id}')">
+            ${category ? `<div class="category-badge">${category}</div>` : ''}
+            <img src="${pose.image || '/static/placeholder.png'}" alt="${pose.name}" loading="lazy">
+            <div class="content">
+              <div class="title">${pose.name}</div>
+              ${pose.english_name ? `<div class="subtitle">${pose.english_name}</div>` : ''}
+              <div class="description">${pose.description || 'Practice this pose with live pose analysis and feedback.'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function getPoseCategoryForId(id) {
+      const groups = poseIdToGroups[id] || [];
+      if (!groups.length) return null;
+      // Return a short label without leading emoji/number
+      const title = groups[0];
+      return title.replace(/^\p{Extended_Pictographic}+\s*\d*\.\s*/u, '');
+    }
+    
+    function openLesson(poseId) {
+      window.location.href = `/lessons/${encodeURIComponent(poseId)}`;
+    }
+    
+    function filterPoses(category) {
+      if (category === 'all') {
+        filteredPoses = [...allPoses];
+      } else {
+        filteredPoses = allPoses.filter(pose => {
+          const groups = poseIdToGroups[pose.id] || [];
+          return groups.includes(category);
+        });
+      }
+      renderPoses();
+    }
+    
+    function searchPoses(query) {
+      if (!query.trim()) {
+        filteredPoses = [...allPoses];
+      } else {
+        const searchTerm = query.toLowerCase();
+        filteredPoses = allPoses.filter(pose => 
+          pose.name.toLowerCase().includes(searchTerm) ||
+          (pose.english_name && pose.english_name.toLowerCase().includes(searchTerm)) ||
+          (pose.description && pose.description.toLowerCase().includes(searchTerm))
+        );
+      }
+      renderPoses();
+    }
+    
+    // Event listeners
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      searchPoses(e.target.value);
+    });
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        filterPoses(e.target.dataset.category);
+      });
+    });
+    
+    // Load poses on page load
+    loadPoses();
+
+    // Toggle Login/Logout based on localStorage session
+    (function(){
+      const btn = document.getElementById('authBtn');
+      if (!btn) return;
+      function update(){
+        const sid = localStorage.getItem('session_id');
+        if (sid){
+          btn.textContent = 'Logout';
+          btn.href = '#';
+          btn.onclick = async function(e){
+            e.preventDefault();
+            try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sid }) }); } catch(_){}
+            localStorage.clear();
+            location.href = '/login';
+          };
+        } else {
+          btn.textContent = 'Login';
+          btn.href = '/login';
+          btn.onclick = null;
+        }
+      }
+      update();
+    })();
+  </script>
+</body>
+</html>
+
+

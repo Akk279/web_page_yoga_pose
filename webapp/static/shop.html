@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – Yoga Shop</title>
+  <style>
+    :root {
+      --brand: #2E7D32;
+      --brand-lite: #CDE5C7;
+      --accent: #E53935;
+      --ink: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; color: var(--ink); background: #f8fafc; }
+    a { color: inherit; text-decoration: none; }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 10;
+    }
+    .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .5px; }
+    .nav .links { display: flex; gap: 18px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.light { background: #fff; color: var(--brand); }
+
+    .hero {
+      padding: 48px 20px; text-align: center; color: #fff;
+      background: linear-gradient(120deg, rgba(46,125,50,0.9), rgba(32,76,34,0.9)), url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+    }
+    .hero h1 { margin: 0 0 12px; font-size: clamp(32px, 6vw, 56px); }
+    .hero p { margin: 0 auto; max-width: 720px; font-size: 18px; opacity: .95; }
+
+    .section { padding: 40px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+      overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; flex-direction: column;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(0,0,0,0.12); }
+    .card img { width: 100%; height: 200px; object-fit: cover; background: #f0f7f1; }
+    .card h3 { margin: 0 0 6px; font-size: 20px; }
+    .card p { margin: 0 0 16px; color: #64748b; font-size: 14px; }
+    .card .meta { margin-top: auto; }
+    .price { font-size: 22px; font-weight: 800; color: var(--brand); }
+    .actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .qty {
+      display: inline-flex; align-items: center; gap: 6px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 8px; background: #f8fafc;
+    }
+    .qty button {
+      border: none; background: transparent; font-size: 16px; cursor: pointer; width: 26px; height: 26px; border-radius: 6px;
+    }
+    .qty button:hover { background: #e2e8f0; }
+    .qty .qty-val { min-width: 18px; text-align: center; font-weight: 600; }
+    .cart-btn {
+      background: var(--brand); color: #fff; border: none; padding: 10px 16px;
+      border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.2s;
+    }
+    .cart-btn:hover { background: #1B5E20; transform: scale(1.02); }
+    .note { text-align: center; color: #64748b; margin-top: 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><a href="/"><span style="font-size:22px">✋</span> <span>ANT</span></a></div>
+    <nav class="links">
+      <a href="/">Home</a>
+      <a href="/lessons">Lessons</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/book-instructor">Book Instructor</a>
+      <a href="/shop">Shop</a>
+      <a href="/cart">Cart</a>
+      <a class="btn light" id="authBtn" href="/login">Login</a>
+      <a class="btn primary" href="/session">Start Session</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Shop Yoga Essentials</h1>
+    <p>Curated mats, props, and wearables to complement your practice. Checkout is not live yet — feel free to explore.</p>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid">
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=600" alt="Premium Yoga Mat" onerror="this.style.display='none'; this.parentElement.innerHTML='🧘'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Premium Yoga Mat</h3>
+            <p>Non-slip, eco-friendly, extra thick cushioning.</p>
+            <div class="actions meta">
+              <span class="price">$49.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Premium Yoga Mat" data-price="49.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://images-na.ssl-images-amazon.com/images/I/31DHShU9-zL._SL500_._AC_SL500_.jpg" alt="Yoga Outfit Set" onerror="this.style.display='none'; this.parentElement.innerHTML='👕'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Yoga Outfit Set</h3>
+            <p>Breathable, moisture-wicking activewear.</p>
+            <div class="actions meta">
+              <span class="price">$79.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Yoga Outfit Set" data-price="79.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://www.jiomart.com/images/product/original/rvb6kme1zc/ajro-deal-yoga-block-high-density-yoga-exercise-brick-yoga-blocks-set-of-2-product-images-orvb6kme1zc-p601234107-3-202305070028.jpg?im=Resize=(420,420)" alt="Yoga Blocks Set" onerror="this.style.display='none'; this.parentElement.innerHTML='📦'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Yoga Blocks Set</h3>
+            <p>Premium cork blocks for better alignment.</p>
+            <div class="actions meta">
+              <span class="price">$24.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Yoga Blocks Set" data-price="24.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTtk4Slci5QyVeR-TWLzmmFZJ4JTujpjwA0kHObO_QrOuH5VWKwukjNoJYIZTSCH8uIZ2V33b7ztCqYWF8aWwm79-Y81EZxR8DZKPTI4Yo4dY4JC1mEnMOa" alt="Yoga Strap" onerror="this.style.display='none'; this.parentElement.innerHTML='🎀'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Yoga Strap</h3>
+            <p>Durable 6-feet cotton yoga strap.</p>
+            <div class="actions meta">
+              <span class="price">$14.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Yoga Strap" data-price="14.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://www.manduka.com/cdn/shop/products/Meditation_Cushion_3.jpg?v=1661407183&width=1500" alt="Meditation Cushion" onerror="this.style.display='none'; this.parentElement.innerHTML='🧘‍♀️'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Meditation Cushion</h3>
+            <p>Comfortable zafu cushion for meditation.</p>
+            <div class="actions meta">
+              <span class="price">$39.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Meditation Cushion" data-price="39.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://kurma-yoga.com/wp-content/uploads/2019/08/kurma_yoga_bolster_burgundy_gots-600x600.jpg" alt="Yoga Bolster" onerror="this.style.display='none'; this.parentElement.innerHTML='🛋️'; this.parentElement.style.fontSize='64px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3>Yoga Bolster</h3>
+            <p>Supportive cushion for restorative poses.</p>
+            <div class="actions meta">
+              <span class="price">$34.99</span>
+              <div class="qty">
+                <button type="button" class="qty-btn" data-dir="-">-</button>
+                <span class="qty-val">1</span>
+                <button type="button" class="qty-btn" data-dir="+">+</button>
+              </div>
+              <button class="cart-btn" data-name="Yoga Bolster" data-price="34.99">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Cart and checkout are coming soon. This shop is a preview.</p>
+    </div>
+  </section>
+
+  <script>
+    // Toggle Login/Logout based on localStorage session
+    const authBtn = document.getElementById('authBtn');
+    function wireAuthBtn(){
+      const sid = localStorage.getItem('session_id');
+      if (!authBtn) return;
+      if (sid) {
+        authBtn.textContent = 'Logout';
+        authBtn.href = '#';
+        authBtn.onclick = async function(e){
+          e.preventDefault();
+          try { await fetch('/auth/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ session_id: sid }) }); } catch(_){ }
+          localStorage.clear();
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.href = '/login';
+        authBtn.onclick = null;
+      }
+    }
+    window.addEventListener('storage', wireAuthBtn);
+    wireAuthBtn();
+
+    function loadCart(){
+      try { return JSON.parse(localStorage.getItem('cart_items') || '[]'); }
+      catch { return []; }
+    }
+    function saveCart(items){
+      localStorage.setItem('cart_items', JSON.stringify(items));
+    }
+    function totalCount(items){
+      return items.reduce((acc, it) => acc + (it.qty || 1), 0);
+    }
+
+    // Cart handling
+    document.addEventListener('DOMContentLoaded', () => {
+      // qty controls
+      document.querySelectorAll('.qty').forEach(q => {
+        const valEl = q.querySelector('.qty-val');
+        q.querySelectorAll('.qty-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const dir = btn.dataset.dir === '-' ? -1 : 1;
+            const next = Math.max(1, (parseInt(valEl.textContent || '1', 10) || 1) + dir);
+            valEl.textContent = next;
+          });
+        });
+      });
+
+      document.querySelectorAll('.cart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const name = btn.dataset.name || 'Item';
+          const price = parseFloat(btn.dataset.price || '0') || 0;
+          const qtyEl = btn.closest('.card')?.querySelector('.qty-val');
+          const qty = Math.max(1, parseInt(qtyEl?.textContent || '1', 10) || 1);
+          const items = loadCart();
+          const existing = items.find(it => it.name === name && Number(it.price) === price);
+          if (existing){
+            existing.qty = (existing.qty || 1) + qty;
+          } else {
+            items.push({ name, price, qty });
+          }
+          saveCart(items);
+          alert(`Added to cart: ${qty} × ${name}\n\nCart items: ${totalCount(items)}\n\nGo to Cart to review your items.`);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+

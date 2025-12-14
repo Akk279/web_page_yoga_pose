@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANT – How XP and Achievements Work</title>
+  <style>
+    body { margin:0; font-family: system-ui, Arial, sans-serif; background:#f8fafc; color:#0f172a; }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#2E7D32; color:#fff; }
+    .nav a { color:#fff; text-decoration:none; margin-left:16px; }
+    .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin-bottom:16px; }
+    h1 { color:#2E7D32; }
+    h2 { color:#2E7D32; font-size:18px; margin:12px 0; }
+    ul { margin:8px 0 0 18px; }
+    code { background:#eef2ff; padding:2px 6px; border-radius:6px; }
+    .badge { display:inline-block; background:#e8f5e9; color:#2E7D32; padding:2px 8px; border-radius:10px; font-size:12px; margin-left:6px; }
+    .ach { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eef2f7; }
+    .ach:last-child { border-bottom:none; }
+    .ach .name { font-weight:600; }
+    .ach .meta { color:#64748b; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div>ANT</div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/lessons">Lessons</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>How XP and Achievements Work</h1>
+
+    <div class="card">
+      <h2>XP formula</h2>
+      <p>Your XP for each session is calculated as:</p>
+      <p><code>base(10) + duration_minutes(1/min) + accuracy_bonus(×20) + streak_bonus(×2, max 20) + new_pose_bonus(25 once per pose)</code></p>
+      <ul>
+        <li><b>Base</b>: Every session awards 10 XP.</li>
+        <li><b>Duration</b>: 1 XP per minute practiced.</li>
+        <li><b>Accuracy</b>: Accuracy score × 20.</li>
+        <li><b>Streak</b>: 2 XP per current streak day (capped at 20).</li>
+        <li><b>New pose</b>: +25 XP the first time you practice a new pose.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Levels</h2>
+      <p>Levels increase with total XP. Example milestones:</p>
+      <ul>
+        <li>Level 2 – 100 XP</li>
+        <li>Level 3 – 300 XP</li>
+        <li>Level 4 – 600 XP</li>
+        <li>Level 5 – 1000 XP</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Achievements</h2>
+      <div class="ach"><div><span class="name">First Steps</span> <span class="meta">Complete your first session</span></div><div class="badge">+50 XP</div></div>
+      <div class="ach"><div><span class="name">Consistent Practice</span> <span class="meta">7‑day streak</span></div><div class="badge">+200 XP</div></div>
+      <div class="ach"><div><span class="name">Pose Master</span> <span class="meta">Master 10 poses</span></div><div class="badge">+300 XP</div></div>
+      <div class="ach"><div><span class="name">Hour of Power</span> <span class="meta">Accumulate 60 minutes</span></div><div class="badge">+150 XP</div></div>
+      <p style="margin-top:12px;color:#64748b">On your dashboard, earned achievements are highlighted; others appear dim until completed.</p>
+    </div>
+  </main>
+</body>
+</html>
+
+

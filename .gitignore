@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyInstaller
+*.spec
+*.exe
+
+# Model files (if too large, consider Git LFS)
+# Uncomment if models are too large for GitHub
+# *.keras
+# *.h5
+# *.pkl
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# Temporary files
+tempCodeRunnerFile.py
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Data files (optional - uncomment if data is too large or sensitive)
+# data/auth/users.json
+# data/auth/sessions.json
+
